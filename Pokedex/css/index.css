@@ -126,7 +126,13 @@ body {
     background: linear-gradient(45deg, #a3abf8, #4d5ddc);
 }
 
+.card.normal.flying:hover{
+    background: linear-gradient(45deg, rgb(201, 201, 201), rgb(93, 93, 184));
+}
 
+.card.bug.poison:hover{
+    background: linear-gradient(75deg,#78C850, rgb(199, 3, 199));
+}
 
 .card:hover img {
     display:none;
