@@ -21,6 +21,7 @@ body {
 
 .button {
     background-color: #ff0000;
+    cursor: pointer;
     border-radius: 8px;
     border: none;
     color: white;
@@ -44,11 +45,88 @@ body {
 
 .card {
     font-family: DejaVu Sans Mono, monospace;
+    cursor: pointer;
     border: 2px solid rgb(78, 78, 78);
     border-radius: 5px;
     background-image: linear-gradient(rgb(88, 88, 88), rgb(255, 255, 255));
     text-align: center;
+    transition: border-color 0.3s ease;
 }
+
+.card.fire:hover{
+    border-color: #f08030;
+    background: linear-gradient(45deg, #f08030, #fcdcdc);
+}
+
+.card.water:hover{
+    border-color: #6890f0;
+    background: linear-gradient(45deg, #6890f0, #a3d1f8);
+}
+
+.card.grass:hover{
+    border-color: #409b12;
+    background: linear-gradient(45deg, #409b12, #a8e080);
+}
+
+.card.electric:hover{
+    border-color: #F8D030;
+    background: linear-gradient(45deg, #F8D030, #fff29d);
+}
+
+.card.bug:hover{
+    border-color: #78C850;
+    background: linear-gradient(45deg, #78C850, #d0f79d);
+}
+
+.card.normal:hover{
+    border-color: rgb(201, 201, 201);
+    background: linear-gradient(45deg, rgb(201, 201, 201), #f0f0f0);
+}
+
+.card.poison:hover{
+    border-color: rgb(199, 3, 199);
+    background: linear-gradient(45deg, rgb(199, 3, 199), #f2a7f2);
+}
+
+.card.ground:hover{
+    border-color: #ac5702;
+    background: linear-gradient(45deg, #ac5702, #e8a457);
+}
+
+.card.fairy:hover{
+    border-color: rgb(252, 147, 164);
+    background: linear-gradient(45deg, rgb(252, 147, 164), #ffe4e9);
+}
+
+.card.ice:hover{
+    border-color: lightblue;
+    background: linear-gradient(45deg, lightblue, #e0f7ff);
+}
+.card.fighting:hover{
+    border-color: red;
+    background: linear-gradient(45deg, red, #ff7070);
+}
+
+.card.psychic:hover{
+    border-color: palevioletred;
+    background: linear-gradient(45deg, palevioletred, #ff6f91);
+}
+
+.card.rock:hover{
+    background: linear-gradient(45deg, #6e6e6e, #616161);
+}
+
+.card.ghost:hover{
+    border-color: rgb(99, 0, 99);
+    background: linear-gradient(45deg, #b19cd9, #4b0082);
+}
+
+.card.dragon:hover{
+    border-color: #4d5ddc;
+    background: linear-gradient(45deg, #a3abf8, #4d5ddc);
+}
+
+
 
 .card:hover img {
     display:none;
@@ -76,13 +154,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 10px ;
 }
-
-.height_weight img{
-}
-
-
-
 
 
 .types {

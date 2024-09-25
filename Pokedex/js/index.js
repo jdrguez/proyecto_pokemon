@@ -62,14 +62,14 @@ const showPokedex = async () => {
         }
         // Para cada Pokemon, se crea una tarjeta con imágenes (vista frontal y trasera), el nombre y los tipos
         // Esta estructura HTML se añade dinámicamente al contenedor pokedex
-        pokedex.innerHTML +=    `<div class="card">
+        pokedex.innerHTML +=    `<div class="card ${tipo1}">
                                     <img src="${pokemons[i].pkm_back}">
                                     <img class="front" src="${pokemons[i].pkm_front}"><br>
                                     ${pokemons[i].id}. ${pokemons[i].name}<br>
                                     <div class="container-hei-wei">
                                         <div class="height_weight">
-                                            <img class="height" src="assets/images/altura.png">${pokemons[i].pkm_height} 
-                                            <img class="weight" src="assets/images/peso.png">${pokemons[i].pkm_weight}
+                                            <img class="height" src="assets/images/altura.png">${pokemons[i].pkm_height} cm 
+                                            <img class="weight" src="assets/images/peso.png">${pokemons[i].pkm_weight} kg
                                         </div>
                                     <div class="types">
                                         ${tipo1} ${tipo2}
