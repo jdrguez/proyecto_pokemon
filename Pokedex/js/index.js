@@ -19,6 +19,8 @@ button.addEventListener("click", () => {
 
 // Función asíncrona que va a realizar operaciones con promesas para realizar la llamada a la API
 const startPokedex = async () => {
+    document.querySelector(".cargandoDatos").style.visibility= "visible";
+
     // Bucle for que itera desde 1 hasta 151, que son los primeros 151 Pokemon
     for(var i = 1; i <= 151; i++) {
         // Utilizamos fetch para hacer una solicitud a la API donde i representa el número de Pokemon
@@ -46,6 +48,8 @@ function pushPokemon(pokemon) {
 
 // Esta función se encarga de mostrar en el DOM los Pokemon que se han obtenido y almacenado en el array 
 const showPokedex = async () => {
+
+    showConsole();
     // Se obtiene una referencia al elemento con el ID pokedex en el DOM donde se insertarán las tarjetas de los Pokemon.
     const pokedex = document.getElementById("pokedex");
     // Iteramos sobre cada elemento del array pokemons
@@ -76,4 +80,20 @@ const showPokedex = async () => {
                                     </div>
                                 </div>`
     }
+
+}
+
+function showConsole(){
+    document.querySelector("#pokedex").style.visibility = "visible";
+
+    document.querySelectorAll(".input").forEach((e) => {
+        e.style.visibility = "visible";
+    });
+
+    document.querySelectorAll(".btnMenu").forEach((e) => {
+        e.style.visibility = "visible";
+    });
+
+    
+    document.querySelector(".cargandoDatos").style.display = "none";
 }
