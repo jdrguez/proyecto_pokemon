@@ -1,7 +1,4 @@
-
-<script type="module" src="firebaseconect.js"></script>
-
-import { ManageAccount } from './firebaseconect.js';
+import { ManageAccount } from './firebase.js';
 
 document.getElementById("loginForm").addEventListener("submit", (event) => {
   event.preventDefault();

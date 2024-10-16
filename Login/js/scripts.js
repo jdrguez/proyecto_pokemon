@@ -17,13 +17,13 @@ function validateLogin() {
   }
 
   // Compruebo el formato mínimo de la contraseña
-  if (!passwordPattern.test(password)) {
+  /**if (!passwordPattern.test(password)) {
     alert(
       "La contraseña debe tener al menos 8 caracteres, incluir una letra, al menos una mayúscula, un símbolo y un número."
     );
     return false;
   }
-
+**/
   return true;
 }
 
@@ -48,7 +48,7 @@ function validateRegister() {
   }
 
   // Limito longitud del campo edad
-  if (edad.length == 2) {
+  if (edad.length > 2) {
     alert("La longitud de la edad no es correcta.");
     return false;
   }
@@ -60,13 +60,13 @@ function validateRegister() {
   }
 
   // Compruebo el formato mínimo de la contraseña
-  if (!passwordPattern.test(password)) {
+  /**if (!passwordPattern.test(password)) {
     alert(
       "La contraseña debe tener al menos 8 caracteres, incluir una letra y un número."
     );
     return false;
   }
-
+**/
   // Confirmo que ha escrito correctamente la contraseña
   if (password !== confirmPassword) {
     alert("Las contraseñas no coinciden.");
