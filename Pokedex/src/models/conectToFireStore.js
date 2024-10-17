@@ -1,4 +1,4 @@
-import { initializeApp } from "firebase/app";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
 import {
   getFirestore,
   collection,
@@ -7,27 +7,35 @@ import {
   updateDoc,
   deleteDoc,
   doc,
-} from "firebase/firestore";
+} from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
 
 // Configuración de Firebase
 const firebaseConfig = {
-    apiKey: "AIzaSyD-K5LPKyqdwe2_dtzBGVcLY5TBK1ZMWP4",
-    authDomain: "pokedex-ee001.firebaseapp.com",
-    projectId: "pokedex-ee001",
-    storageBucket: "pokedex-ee001.appspot.com",
-    messagingSenderId: "153732063408",
-    appId: "1:153732063408:web:9cede32834151901209b75"
+
+  apiKey: "AIzaSyD-K5LPKyqdwe2_dtzBGVcLY5TBK1ZMWP4",
+
+  authDomain: "pokedex-ee001.firebaseapp.com",
+
+  projectId: "pokedex-ee001",
+
+  storageBucket: "pokedex-ee001.appspot.com",
+
+  messagingSenderId: "153732063408",
+
+  appId: "1:153732063408:web:9cede32834151901209b75"
+
 };
 
+
 // Inicializa Firebase
-const app = initializeApp(firebaseConfig);
+export const app = initializeApp(firebaseConfig);
 
 // Inicializa Firestore
-const db = getFirestore(app);
+export const db = getFirestore(app);
 
 class ConectToFirebase {
   constructor() {
-    this.collectionRef = collection(db, "pokemon");
+    this.collectionRef = collection(db, "usuarios");
   }
 
   // Crear un nuevo documento

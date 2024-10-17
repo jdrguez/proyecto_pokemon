@@ -2,11 +2,15 @@
 import ConectToFirebase from "../models/conectToFireStore.js";
 import { PokemonModel } from "../models/PokemonModel.js";
 import { PokemonView } from "../views/PokemonView.js";
+import  {Login}  from "../views/Login.js";
+import { Signup } from "../views/Singup.js";
 export class PokemonController {
   constructor() {
     this.db = new ConectToFirebase();
     this.model = new PokemonModel();
     this.view = new PokemonView();
+    this.login = new Login();
+    this.signup = new Signup();
 
     this.pokemonsFiltered = [];
     this.newDesireList = [];
@@ -21,6 +25,38 @@ export class PokemonController {
     document.querySelectorAll(".btnBBDD").forEach((btnBBDD) => {
       btnBBDD.addEventListener("click", () => this.bbddAction(btnBBDD.id));
     });
+
+    this.login.form.querySelector("#iniciar").addEventListener("click", (event) => {
+      event.preventDefault();
+
+      const email = this.login.form.querySelector("#loginUsername").value;
+      const password = this.login.form.querySelector("#loginPassword").value;
+
+      this.login.manageacount(email,password)
+                
+    });
+
+    this.signup.form.querySelector('#registrar').addEventListener("click", (event) =>{
+      event.preventDefault(); 
+        const nickname = document.querySelector('#registerUsername').value;
+        const name = document.querySelector('#name').value;
+        const surname = document.querySelector('#fullName').value;
+        const email = document.querySelector('#email').value;
+        const age = document.querySelector('#age').value;
+        const city = document.querySelector('#city').value;
+        const password = document.querySelector('#registerPassword').value;
+        const confirmPassword = document.querySelector('#confirmPassword').value;
+
+        if (password !== confirmPassword) {
+            alert('Las contraseñas no coinciden');
+            return;
+        }
+
+
+        this.signup.registerUser(nickname, name, surname, email, age, city, password);
+
+    })
+
   }
   async init() {
     this.view.showLoading();
