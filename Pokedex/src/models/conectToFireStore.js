@@ -11,12 +11,12 @@ import {
 
 // Configuración de Firebase
 const firebaseConfig = {
-  apiKey: "AIzaSyDIYufbRXBkkMtDdm172waEE0yJ4VWJZGM",
-  authDomain: "compra-pokemon.firebaseapp.com",
-  projectId: "compra-pokemon",
-  storageBucket: "compra-pokemon.appspot.com",
-  messagingSenderId: "307179579293",
-  appId: "1:307179579293:web:3cda9bbff5b9371e8db174",
+    apiKey: "AIzaSyD-K5LPKyqdwe2_dtzBGVcLY5TBK1ZMWP4",
+    authDomain: "pokedex-ee001.firebaseapp.com",
+    projectId: "pokedex-ee001",
+    storageBucket: "pokedex-ee001.appspot.com",
+    messagingSenderId: "153732063408",
+    appId: "1:153732063408:web:9cede32834151901209b75"
 };
 
 // Inicializa Firebase
