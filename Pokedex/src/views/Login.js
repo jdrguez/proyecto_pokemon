@@ -13,7 +13,7 @@ export class Login {
             // Signed in 
             const user = userCredential.user;
             console.log('se ha iniciado sesion')
-            window.location.href = "/home/jdrguez/Repositorios/proyecto_pokemon/Pokedex/pokedex.html";
+            window.location.href = "pokedex.html";
             // ...
           })
           .catch((error) => {
