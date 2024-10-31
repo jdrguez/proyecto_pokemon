@@ -1,9 +1,9 @@
-// PokemonController.js
 import ConectToFirebase from "../models/conectToFireStore.js";
 import { PokemonModel } from "../models/PokemonModel.js";
 import { PokemonView } from "../views/PokemonView.js";
-import  {Login}  from "../views/Login.js";
+import { Login } from "../views/Login.js";
 import { Signup } from "../views/Singup.js";
+
 export class PokemonController {
   constructor() {
     this.db = new ConectToFirebase();
@@ -14,188 +14,154 @@ export class PokemonController {
 
     this.pokemonsFiltered = [];
     this.newDesireList = [];
-    this.auxPokemons = [];
-
-    // Bind button event
-    document
-      .querySelector("button")
-      .addEventListener("click", () => this.init());
-
-    // Bind Botons de BBDD de prueba
-    document.querySelectorAll(".btnBBDD").forEach((btnBBDD) => {
-      btnBBDD.addEventListener("click", () => this.bbddAction(btnBBDD.id));
-    });
-
-    this.login.form.querySelector("#iniciar").addEventListener("click", (event) => {
-      event.preventDefault();
-
-      const email = this.login.form.querySelector("#loginUsername").value;
-      const password = this.login.form.querySelector("#loginPassword").value;
-
-      this.login.manageacount(email,password)
-                
-    });
-
-    this.signup.form.querySelector('#registrar').addEventListener("click", (event) =>{
-      event.preventDefault(); 
-        const nickname = document.querySelector('#registerUsername').value;
-        const name = document.querySelector('#name').value;
-        const surname = document.querySelector('#fullName').value;
-        const email = document.querySelector('#email').value;
-        const age = document.querySelector('#age').value;
-        const city = document.querySelector('#city').value;
-        const password = document.querySelector('#registerPassword').value;
-        const confirmPassword = document.querySelector('#confirmPassword').value;
-
-        if (password !== confirmPassword) {
-            alert('Las contraseñas no coinciden');
-            return;
-        }
-
-
-        this.signup.registerUser(nickname, name, surname, email, age, city, password);
-
-    })
-
+    this.initEvents();
   }
+
+  initEvents() {
+    document.querySelector("button").addEventListener("click", () => this.init());
+    document.querySelectorAll(".btnBBDD").forEach(btn => {
+      btn.addEventListener("click", () => this.bbddAction(btn.id));
+    });
+
+    this.login.form.querySelector("#iniciar").addEventListener("click", this.handleLogin.bind(this));
+    this.signup.form.querySelector("#registrar").addEventListener("click", this.handleSignup.bind(this));
+  }
+
   async init() {
     this.view.showLoading();
     try {
       await this.model.loadPokemons();
       this.view.hideLoading();
-      this.view.showConsole();
       this.view.displayPokemons(this.model.getAllPokemons());
       this.bindingEvents();
     } catch (error) {
-      console.error(error);
+      console.error("Error al cargar Pokémon:", error);
+      this.view.showError("Error al cargar Pokémon. Intenta nuevamente.");
     }
   }
+
   async bindingEvents() {
-    // Bind input filterType
     this.filterType = document.querySelector("#filtroTipo");
-    this.filterType.addEventListener("keyup", () =>
-      this.filteringPokemonsByType()
-    );
+    this.filterGeneration = document.querySelector("#filtroGeneracion");
+    this.filterScore = document.querySelector("#filtroPuntuacion");
 
-    // Bind input filterWeight
-    this.filterWeight = document.querySelector("#filtroPeso");
-    this.filterWeight.addEventListener("keyup", () =>
-      this.filteringPokemonsByWeight()
-    );
+    // Asignar eventos a cada filtro
+    this.filterType.addEventListener("input", () => this.applyFilters());
+    this.filterGeneration.addEventListener("input", () => this.applyFilters());
+    this.filterScore.addEventListener("input", () => this.applyFilters());
 
-    // Bind Añadir a Lista de deseos
-    document
-      .querySelector("#btnAgnadeListaDeseo")
-      .addEventListener("click", this.mostrarListaDeseo.bind(this));
+    document.querySelector("#btnAgnadeListaDeseo").addEventListener("click", this.showWishlistPrompt.bind(this));
 
-    // Bind Cards pokemons
-    this.cardPokemons = document.querySelectorAll(".card");
-    this.cardPokemons.forEach((card) => {
-      card.addEventListener("click", () => this.pokemonsClicked(card.id));
+    document.querySelectorAll(".card").forEach(card => {
+      card.addEventListener("click", () => this.selectPokemon(card.id));
     });
   }
 
-  // Metódo de prueba de BBDD
-  bbddAction(btnClicked) {
-    switch (btnClicked) {
-      case "readAllPokemon":
-        this.getAllPokemon();
-        break;
+  // Login Handler
+  handleLogin(event) {
+    event.preventDefault();
+    const email = this.login.form.querySelector("#loginUsername").value;
+    const password = this.login.form.querySelector("#loginPassword").value;
+    this.login.manageAccount(email, password);
+  }
 
-      case "addPokemon":
-        let data = {
-          tipo: "Iron",
-          nombre: "Fixy",
-        };
-        this.createPokemon(data);
-        break;
+  // Signup Handler
+  handleSignup(event) {
+    event.preventDefault();
+    const fields = ["#registerUsername", "#name", "#fullName", "#email", "#age", "#city", "#registerPassword", "#confirmPassword"];
+    const [nickname, name, surname, email, age, city, password, confirmPassword] = fields.map(id => document.querySelector(id).value);
 
-      case "updatePokemon":
-        const id = "dJEvAx4dTIUY9IOeoy7E";
-        let data2 = {
-          tipo: "Water",
-          nombre: "Darum",
-        };
-        this.updatePokemon(id, data2);
-        break;
+    if (password !== confirmPassword) {
+      alert("Las contraseñas no coinciden");
+      return;
+    }
 
-      case "deletePokemon":
-        const id2 = "PezyN0gwr0vzXhBApCxU";
-        this.deletePokemon(id2);
-        break;
+    this.signup.registerUser(nickname, name, surname, email, age, city, password);
+  }
 
-      default:
-        break;
+  applyFilters() {
+    const typeValue = this.filterType.value;
+    const generationValue = this.filterGeneration.value;
+    const scoreValue = parseFloat(this.filterScore.value);
+
+    this.pokemonsFiltered = this.model.getAllPokemons().filter(pokemon => {
+      const matchesType = typeValue ? pokemon.types.some(type => type.name.includes(typeValue)) : true;
+      const matchesGeneration = generationValue ? this.getGeneration(pokemon.id) === parseInt(generationValue) : true;
+      const matchesScore = scoreValue ? pokemon.totalScore >= scoreValue : true;
+      
+      return matchesType && matchesGeneration && matchesScore;
+    });
+
+    this.view.displayPokemons(this.pokemonsFiltered.length ? this.pokemonsFiltered : []);
+    if (!this.pokemonsFiltered.length) {
+      this.view.showNoResultsMessage("No se encontraron Pokémon para los filtros aplicados.");
     }
   }
 
-  pokemonsClicked(cardId) {
-    this.newDesireList.push(cardId);
+  getGeneration(pokemonId) {
+    if (pokemonId <= 151) return 1;  // Generación 1
+    if (pokemonId <= 251) return 2;  // Generación 2
+    if (pokemonId <= 386) return 3;  // Generación 3
+    // Puedes expandir para otras generaciones...
+    return 0;
   }
 
-  async filteringPokemonsByType() {
-    // Probando BBDD
-    const getTasks = () => getDocs(collection(db, "pokemon"));
-    console.log(`Pokemon de FireStore: ${getTasks}`);
+  selectPokemon(cardId) {
+    if (!this.newDesireList.includes(cardId)) {
+      this.newDesireList.push(cardId);
+    }
+  }
 
-    if (this.pokemonsFiltered.length == 0) {
-      this.auxPokemons = this.model.pokemons;
+  showWishlistPrompt() {
+    if (!this.newDesireList.length) {
+      alert("No tienes Pokémon seleccionados en tu lista de deseos.");
+      return;
+    }
+
+    const message = `¿Quieres añadir los siguientes Pokémon a la Lista de Deseos?\n${this.newDesireList.join(", ")}`;
+    if (window.confirm(message)) {
+      console.log("Guardando lista de deseos...");
+      this.saveWishlist();
     } else {
-      this.auxPokemons = this.pokemonsFiltered;
+      this.newDesireList = [];
+      console.log("Lista de deseos deseleccionada.");
     }
-
-    // ToDo refactorizar para reutilizar
-    // método para todos los filtros -> pasar tipo
-    // filtro por referencia
-
-    this.auxPokemons.forEach((pkm) => {
-      this.safePokemon = false;
-
-      if (pkm.pkm_type[0].type.name.includes(this.filterType.value)) {
-        this.safePokemon = true;
-      } else if (
-        pkm.pkm_type.length > 1 &&
-        pkm.pkm_type[1].type.name.includes(this.filterType.value)
-      ) {
-        this.safePokemon = true;
-      }
-      if (this.safePokemon) {
-        this.pokemonsFiltered.push(pkm);
-      }
-    });
-    this.view.displayPokemons(this.pokemonsFiltered);
   }
 
-  mostrarListaDeseo() {
-    let data = {
-      tipo: "Watwe",
-      nombre: "Darum",
-    };
+  async saveWishlist() {
+    try {
+      const wishlist = this.newDesireList.map(id => ({ pokemonId: id }));
+      await this.db.create({ wishlist });
+      alert("Lista de deseos guardada con éxito.");
+    } catch (error) {
+      console.error("Error al guardar la lista de deseos:", error);
+      alert("Error al guardar la lista de deseos.");
+    }
+  }
 
-    //this.getAllPokemon();
-    //this.createPokemon(data);
-    //console.log(this.newDesireList);
-    let txt = "¿Quieres añadir los siguientes Pokemons a la Lista de Deseo?";
-    this.newDesireList.forEach((pkm) => {
-      txt = txt + " " + pkm;
-    });
-
-    if (window.confirm(txt)) {
-      // ToDo Guardar en BBDD
-      console.log("Guardando nueva lista de deseo...");
-    } else if (window.confirm("¿Quieres deseleccionar los pokemons?")) {
-      // ToDo desmarcar pokemons
-
-      this.newDesireList = [];
+  async bbddAction(action) {
+    try {
+      switch (action) {
+        case "readAllPokemon":
+          console.log(await this.db.readAll());
+          break;
+        case "addPokemon":
+          await this.createPokemon({ tipo: "Iron", nombre: "Fixy" });
+          break;
+        case "updatePokemon":
+          await this.updatePokemon("dJEvAx4dTIUY9IOeoy7E", { tipo: "Water", nombre: "Darum" });
+          break;
+        case "deletePokemon":
+          await this.deletePokemon("PezyN0gwr0vzXhBApCxU");
+          break;
+      }
+    } catch (error) {
+      console.error(`Error en acción de BBDD (${action}):`, error);
     }
   }
 
   async createPokemon(data) {
     return await this.db.create(data);
-  }
-
-  async getAllPokemon() {
-    return await this.db.readAll();
   }
 
   async updatePokemon(id, data) {
