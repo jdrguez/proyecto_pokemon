@@ -30,10 +30,22 @@
         <div class="filterButtons">
             <input type="text" id="filtroTipo" class="input"
                 placeholder="Buscar por tipo...">
-            <input type="text" id="filtroPeso" class="input"
+            <input type="number" id="filtroPeso" class="input"
                 placeholder="Buscar por peso..">
-            <input type="text" id="filtroPoderTotal" class="input"
+            <input type="number" id="filtroPuntuacion" class="input"
                 placeholder="Buscar por Poder Total...">
+            <input type="number" id="filtroGeneracion" class="input" placeholder="Filtrar por generacion">
+
+
+            <select id="sortSelect">
+                <option value="">Ordenar por...</option>
+                <option value="nameAsc">Nombre (A-Z)</option>
+                <option value="nameDesc">Nombre (Z-A)</option>
+                <option value="attackAsc">Ataque (Menor a Mayor)</option>
+                <option value="attackDesc">Ataque (Mayor a Menor)</option>
+            </select>
+
+
         </div>
         <div class="menuButtons">
             <input type="button" id="btnAgnadeListaDeseo" class="btnMenu"

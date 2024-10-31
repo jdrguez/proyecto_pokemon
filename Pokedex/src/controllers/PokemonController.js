@@ -41,20 +41,22 @@ export class PokemonController {
   }
 
   async bindingEvents() {
-    this.filterType = document.querySelector("#filtroTipo");
-    this.filterGeneration = document.querySelector("#filtroGeneracion");
-    this.filterScore = document.querySelector("#filtroPuntuacion");
-
-    // Asignar eventos a cada filtro
-    this.filterType.addEventListener("input", () => this.applyFilters());
-    this.filterGeneration.addEventListener("input", () => this.applyFilters());
-    this.filterScore.addEventListener("input", () => this.applyFilters());
-
-    document.querySelector("#btnAgnadeListaDeseo").addEventListener("click", this.showWishlistPrompt.bind(this));
-
     document.querySelectorAll(".card").forEach(card => {
       card.addEventListener("click", () => this.selectPokemon(card.id));
     });
+
+    this.filterType = document.querySelector("#filtroTipo");
+    this.filterGeneration = document.querySelector("#filtroGeneracion");
+    this.filterScore = document.querySelector("#filtroPuntuacion");
+    this.searchInput = document.querySelector("#searchInput");
+    this.sortSelect = document.querySelector("#sortSelect");
+    this.filterType.addEventListener("input", () => this.applyFilters());
+    this.filterGeneration.addEventListener("input", () => this.applyFilters());
+    this.filterScore.addEventListener("input", () => this.applyFilters());
+    this.searchInput.addEventListener("input", () => this.applyFilters());
+    this.sortSelect.addEventListener("change", () => this.applyFilters());
+    document.querySelector("#btnAgnadeListaDeseo").addEventListener("click", this.showWishlistPrompt.bind(this));
+
   }
 
   // Login Handler
@@ -80,20 +82,50 @@ export class PokemonController {
   }
 
   applyFilters() {
-    const typeValue = this.filterType.value;
-    const generationValue = this.filterGeneration.value;
-    const scoreValue = parseFloat(this.filterScore.value);
+    let filteredPokemons = this.model.getAllPokemons();
+   // Filtrar por tipo
+    const typeValue = this.filterType.value.toLowerCase();
+    if (typeValue) {
+      filteredPokemons = this.model.filterByType(typeValue);
+     }
+      // Filtrar por generación
+    const generationValue = parseInt(this.filterGeneration.value);
+    if (generationValue) {
+       filteredPokemons = filteredPokemons.filter(pokemon => this.getGeneration(pokemon.id) === generationValue);
+  }
 
-    this.pokemonsFiltered = this.model.getAllPokemons().filter(pokemon => {
-      const matchesType = typeValue ? pokemon.types.some(type => type.name.includes(typeValue)) : true;
-      const matchesGeneration = generationValue ? this.getGeneration(pokemon.id) === parseInt(generationValue) : true;
-      const matchesScore = scoreValue ? pokemon.totalScore >= scoreValue : true;
-      
-      return matchesType && matchesGeneration && matchesScore;
-    });
+   // Filtrar por puntuación (asumiendo que 'attack' es equivalente a 'puntuación') 
+      const scoreValue = parseFloat(this.filterScore.value);
+    if (scoreValue) {
+       filteredPokemons = this.model.filterByAttackRange(scoreValue, Infinity);
+   }
 
-    this.view.displayPokemons(this.pokemonsFiltered.length ? this.pokemonsFiltered : []);
-    if (!this.pokemonsFiltered.length) {
+
+     // Buscar por nombre
+    const searchValue = this.searchInput.value.toLowerCase();
+   if (searchValue) {
+     filteredPokemons = this.model.searchByName(searchValue);
+     }
+
+    // Ordenar
+    const sortValue = this.sortSelect.value;
+    switch (sortValue) {
+      case "nameAsc":
+        filteredPokemons = this.model.sortByName(true);
+       break;
+      case "nameDesc":
+        filteredPokemons = this.model.sortByName(false);
+        break;
+      case "attackAsc":
+        filteredPokemons = this.model.sortByAttack(true);
+        break;
+      case "attackDesc":
+        filteredPokemons = this.model.sortByAttack(false);
+        break;
+    }
+
+    this.view.displayPokemons(filteredPokemons);
+    if (filteredPokemons.length === 0) {
       this.view.showNoResultsMessage("No se encontraron Pokémon para los filtros aplicados.");
     }
   }
