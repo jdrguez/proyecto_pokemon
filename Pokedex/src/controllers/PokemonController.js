@@ -62,7 +62,7 @@ export class PokemonController {
     event.preventDefault();
     const email = this.login.form.querySelector("#loginUsername").value;
     const password = this.login.form.querySelector("#loginPassword").value;
-    this.login.manageAccount(email, password);
+    this.login.manageacount(email, password);
   }
 
   // Signup Handler
