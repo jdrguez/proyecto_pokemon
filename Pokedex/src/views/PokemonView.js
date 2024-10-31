@@ -3,6 +3,7 @@ export class PokemonView {
     this.pokedex = document.getElementById("pokedex");
     this.loadingMessage = document.querySelector(".cargandoDatos");
     this.consoleElements = document.querySelectorAll(".input, .btnMenu");
+    this.button = document.querySelector("#button");
 
     // Modal para mostrar detalles
     this.modal = document.createElement("div");
@@ -20,7 +21,9 @@ export class PokemonView {
   }
 
   showLoading() {
-    document.querySelector("#button").style.visibility = "hidden";
+    if (this.button) {
+      this.button.style.display = "none";
+    }
     this.loadingMessage.style.visibility = "visible";
     this.pokedex.style.visibility = "hidden";
   }
@@ -28,16 +31,21 @@ export class PokemonView {
   hideLoading() {
     this.loadingMessage.style.visibility = "hidden";
     this.pokedex.style.visibility = "visible";
+    this.showConsole();
   }
 
   showConsole() {
-    this.consoleElements.forEach((e) => (e.style.visibility = "visible"));
+    this.consoleElements.forEach(element => {
+      element.style.visibility = "visible";
+    });
   }
 
   displayPokemons(pokemons) {
+    if (!this.pokedex) return;
+    
     this.pokedex.innerHTML = "";
-    pokemons.forEach((pokemon) => {
-      let types = pokemon.pkm_type.map((t) => t.type.name).join(" ");
+    pokemons.forEach(pokemon => {
+      const types = pokemon.pkm_type.map(t => t.type.name).join(" ");
       const pokemonCard = document.createElement("div");
       pokemonCard.classList.add("card");
       pokemonCard.id = `pokemon-${pokemon.id}`;
@@ -53,9 +61,8 @@ export class PokemonView {
         <div class="types">${types}</div>
       `;
 
-      // Añadir EventListener de click
+      // Añadir evento click a la tarjeta
       pokemonCard.addEventListener("click", () => {
-        console.log(`Clicked on ${pokemon.name}`);
         this.handlePokemonClick(pokemon, pokemonCard);
       });
 
@@ -63,15 +70,14 @@ export class PokemonView {
     });
   }
 
-  // Manejo avanzado del clic en el Pokémon
   handlePokemonClick(pokemon, pokemonCard) {
     // Cambiar estilo de la tarjeta para indicar selección
     if (!pokemonCard.classList.contains("selected")) {
       pokemonCard.classList.add("selected");
-      pokemonCard.style.borderColor = "#FFD700"; // Cambia el color del borde
+      pokemonCard.style.borderColor = "#FFD700";
     } else {
       pokemonCard.classList.remove("selected");
-      pokemonCard.style.borderColor = ""; // Restablece el color original
+      pokemonCard.style.borderColor = "";
     }
 
     // Mostrar detalles del Pokémon en un modal
@@ -89,12 +95,10 @@ export class PokemonView {
     this.addToWishlist(pokemon);
   }
 
-  // Método para añadir Pokémon a la lista de deseos
   addToWishlist(pokemon) {
     const isConfirmed = window.confirm(`¿Quieres añadir a ${pokemon.name} a la lista de deseos?`);
     if (isConfirmed) {
       console.log(`${pokemon.name} añadido a la lista de deseos.`);
-      // Aquí puedes implementar lógica para enviar el Pokémon al controlador y manejar la lista de deseos
     }
   }
 }
