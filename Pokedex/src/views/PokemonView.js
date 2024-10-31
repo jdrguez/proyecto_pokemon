@@ -18,6 +18,12 @@ export class PokemonView {
       this.modal.style.display = "none";
     });
     this.modal.appendChild(this.closeModalButton);
+
+    // Mensaje de no resultados
+    this.noResultsMessage = document.createElement("p");
+    this.noResultsMessage.classList.add("no-results-message");
+    this.noResultsMessage.style.display = "none"; // Inicialmente oculto
+    this.pokedex.appendChild(this.noResultsMessage);
   }
 
   showLoading() {
@@ -40,34 +46,48 @@ export class PokemonView {
     });
   }
 
+  showNoResultsMessage(message) {
+    this.noResultsMessage.textContent = message;
+    this.noResultsMessage.style.display = "block";
+  }
+
+  hideNoResultsMessage() {
+    this.noResultsMessage.style.display = "none";
+  }
+
   displayPokemons(pokemons) {
     if (!this.pokedex) return;
-    
+
     this.pokedex.innerHTML = "";
-    pokemons.forEach(pokemon => {
-      const types = pokemon.pkm_type.map(t => t.type.name).join(" ");
-      const pokemonCard = document.createElement("div");
-      pokemonCard.classList.add("card");
-      pokemonCard.id = `pokemon-${pokemon.id}`;
-      pokemonCard.innerHTML = `
-        <div class="cardTop">
-          <div class="attack">Attack ${pokemon.attack}</div>
-          <div class="price">${pokemon.price}€</div>
-        </div>   
-        <img src="${pokemon.pkm_back}" alt="${pokemon.name} back">
-        <img class="front" src="${pokemon.pkm_front}" alt="${pokemon.name} front"><br>
-        ${pokemon.id}. ${pokemon.name}<br>
-        Weight ${pokemon.weight}<br>
-        <div class="types">${types}</div>
-      `;
+    if (pokemons.length === 0) {
+      this.showNoResultsMessage("No se encontraron Pokémon para los filtros aplicados.");
+    } else {
+      this.hideNoResultsMessage();
+      pokemons.forEach(pokemon => {
+        const types = pokemon.pkm_type.map(t => t.type.name).join(" ");
+        const pokemonCard = document.createElement("div");
+        pokemonCard.classList.add("card");
+        pokemonCard.id = `pokemon-${pokemon.id}`;
+        pokemonCard.innerHTML = `
+          <div class="cardTop">
+            <div class="attack">Attack ${pokemon.attack}</div>
+            <div class="price">${pokemon.price}€</div>
+          </div>   
+          <img src="${pokemon.pkm_back}" alt="${pokemon.name} back">
+          <img class="front" src="${pokemon.pkm_front}" alt="${pokemon.name} front"><br>
+          ${pokemon.id}. ${pokemon.name}<br>
+          Weight ${pokemon.weight}<br>
+          <div class="types">${types}</div>
+        `;
 
-      // Añadir evento click a la tarjeta
-      pokemonCard.addEventListener("click", () => {
-        this.handlePokemonClick(pokemon, pokemonCard);
+        // Añadir evento click a la tarjeta
+        pokemonCard.addEventListener("click", () => {
+          this.handlePokemonClick(pokemon, pokemonCard);
+        });
+
+        this.pokedex.appendChild(pokemonCard);
       });
-
-      this.pokedex.appendChild(pokemonCard);
-    });
+    }
   }
 
   handlePokemonClick(pokemon, pokemonCard) {

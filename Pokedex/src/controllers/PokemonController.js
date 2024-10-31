@@ -1,4 +1,3 @@
-import ConectToFirebase from "../models/conectToFireStore.js";
 import { PokemonModel } from "../models/PokemonModel.js";
 import { PokemonView } from "../views/PokemonView.js";
 import { Login } from "../views/Login.js";
@@ -6,25 +5,34 @@ import { Signup } from "../views/Singup.js";
 
 export class PokemonController {
   constructor() {
-    this.db = new ConectToFirebase();
     this.model = new PokemonModel();
     this.view = new PokemonView();
     this.login = new Login();
     this.signup = new Signup();
 
-    this.pokemonsFiltered = [];
     this.newDesireList = [];
     this.initEvents();
   }
 
   initEvents() {
-    document.querySelector("button").addEventListener("click", () => this.init());
+    const button = document.querySelector("button");
+    if (button) {
+      button.addEventListener("click", () => this.init());
+    }
+
     document.querySelectorAll(".btnBBDD").forEach(btn => {
       btn.addEventListener("click", () => this.bbddAction(btn.id));
     });
 
-    this.login.form.querySelector("#iniciar").addEventListener("click", this.handleLogin.bind(this));
-    this.signup.form.querySelector("#registrar").addEventListener("click", this.handleSignup.bind(this));
+    const loginButton = this.login.form?.querySelector("#iniciar");
+    if (loginButton) {
+      loginButton.addEventListener("click", this.handleLogin.bind(this));
+    }
+
+    const signupButton = this.signup.form?.querySelector("#registrar");
+    if (signupButton) {
+      signupButton.addEventListener("click", this.handleSignup.bind(this));
+    }
   }
 
   async init() {
@@ -40,102 +48,96 @@ export class PokemonController {
     }
   }
 
-  async bindingEvents() {
+  bindingEvents() {
     document.querySelectorAll(".card").forEach(card => {
       card.addEventListener("click", () => this.selectPokemon(card.id));
     });
 
     this.filterType = document.querySelector("#filtroTipo");
     this.filterGeneration = document.querySelector("#filtroGeneracion");
+    this.filterPeso = document.querySelector("#filtroPeso");
     this.filterScore = document.querySelector("#filtroPuntuacion");
     this.searchInput = document.querySelector("#searchInput");
     this.sortSelect = document.querySelector("#sortSelect");
-    this.filterType.addEventListener("input", () => this.applyFilters());
-    this.filterGeneration.addEventListener("input", () => this.applyFilters());
-    this.filterScore.addEventListener("input", () => this.applyFilters());
-    this.searchInput.addEventListener("input", () => this.applyFilters());
-    this.sortSelect.addEventListener("change", () => this.applyFilters());
-    document.querySelector("#btnAgnadeListaDeseo").addEventListener("click", this.showWishlistPrompt.bind(this));
 
-  }
+    const addListeners = (element, event) => {
+      if (element) {
+        element.addEventListener(event, () => this.applyFilters());
+      }
+    };
 
-  // Login Handler
-  handleLogin(event) {
-    event.preventDefault();
-    const email = this.login.form.querySelector("#loginUsername").value;
-    const password = this.login.form.querySelector("#loginPassword").value;
-    this.login.manageacount(email, password);
-  }
+    addListeners(this.filterType, "input");
+    addListeners(this.filterGeneration, "input");
+    addListeners(this.filterPeso, "input");
+    addListeners(this.filterScore, "input");
+    addListeners(this.searchInput, "input");
+    addListeners(this.sortSelect, "change");
 
-  // Signup Handler
-  handleSignup(event) {
-    event.preventDefault();
-    const fields = ["#registerUsername", "#name", "#fullName", "#email", "#age", "#city", "#registerPassword", "#confirmPassword"];
-    const [nickname, name, surname, email, age, city, password, confirmPassword] = fields.map(id => document.querySelector(id).value);
-
-    if (password !== confirmPassword) {
-      alert("Las contraseñas no coinciden");
-      return;
+    const wishlistButton = document.querySelector("#btnAgnadeListaDeseo");
+    if (wishlistButton) {
+      wishlistButton.addEventListener("click", this.showWishlistPrompt.bind(this));
     }
-
-    this.signup.registerUser(nickname, name, surname, email, age, city, password);
   }
 
   applyFilters() {
     let filteredPokemons = this.model.getAllPokemons();
-   // Filtrar por tipo
-    const typeValue = this.filterType.value.toLowerCase();
-    if (typeValue) {
-      filteredPokemons = this.model.filterByType(typeValue);
-     }
-      // Filtrar por generación
-    const generationValue = parseInt(this.filterGeneration.value);
-    if (generationValue) {
-       filteredPokemons = filteredPokemons.filter(pokemon => this.getGeneration(pokemon.id) === generationValue);
-  }
 
-   // Filtrar por puntuación (asumiendo que 'attack' es equivalente a 'puntuación') 
+    if (this.filterType && this.filterType.value) {
+      filteredPokemons = this.model.filterByType(this.filterType.value.toLowerCase());
+    }
+
+    if (this.filterGeneration && this.filterGeneration.value) {
+      const generationValue = parseInt(this.filterGeneration.value);
+      filteredPokemons = filteredPokemons.filter(pokemon => this.getGeneration(pokemon.id) === generationValue);
+    }
+
+    if (this.filterPeso && this.filterPeso.value) {
+      const pesoValue = parseFloat(this.filterPeso.value);
+      filteredPokemons = filteredPokemons.filter(pokemon => pokemon.weight >= pesoValue);
+      }
+
+
+    if (this.filterScore && this.filterScore.value) {
       const scoreValue = parseFloat(this.filterScore.value);
-    if (scoreValue) {
-       filteredPokemons = this.model.filterByAttackRange(scoreValue, Infinity);
-   }
+      filteredPokemons = this.model.filterByAttackRange(scoreValue, Infinity);
+    }
 
+    if (this.searchInput && this.searchInput.value) {
+      filteredPokemons = this.model.searchByName(this.searchInput.value.toLowerCase());
+    }
 
-     // Buscar por nombre
-    const searchValue = this.searchInput.value.toLowerCase();
-   if (searchValue) {
-     filteredPokemons = this.model.searchByName(searchValue);
-     }
-
-    // Ordenar
-    const sortValue = this.sortSelect.value;
-    switch (sortValue) {
-      case "nameAsc":
-        filteredPokemons = this.model.sortByName(true);
-       break;
-      case "nameDesc":
-        filteredPokemons = this.model.sortByName(false);
-        break;
-      case "attackAsc":
-        filteredPokemons = this.model.sortByAttack(true);
-        break;
-      case "attackDesc":
-        filteredPokemons = this.model.sortByAttack(false);
-        break;
+    if (this.sortSelect && this.sortSelect.value) {
+      switch (this.sortSelect.value) {
+        case "nameAsc":
+          filteredPokemons = this.model.sortByName(true);
+          break;
+        case "nameDesc":
+          filteredPokemons = this.model.sortByName(false);
+          break;
+        case "attackAsc":
+          filteredPokemons = this.model.sortByAttack(true);
+          break;
+        case "attackDesc":
+          filteredPokemons = this.model.sortByAttack(false);
+          break;
+      }
     }
 
     this.view.displayPokemons(filteredPokemons);
-    if (filteredPokemons.length === 0) {
-      this.view.showNoResultsMessage("No se encontraron Pokémon para los filtros aplicados.");
-    }
   }
 
+
+
   getGeneration(pokemonId) {
-    if (pokemonId <= 151) return 1;  // Generación 1
-    if (pokemonId <= 251) return 2;  // Generación 2
-    if (pokemonId <= 386) return 3;  // Generación 3
-    // Puedes expandir para otras generaciones...
-    return 0;
+    if (pokemonId <= 151) return 1;
+    if (pokemonId <= 251) return 2;
+    if (pokemonId <= 386) return 3;
+    if (pokemonId <= 493) return 4;
+    if (pokemonId <= 649) return 5;
+    if (pokemonId <= 721) return 6;
+    if (pokemonId <= 809) return 7;
+    if (pokemonId <= 905) return 8;
+    return 9;
   }
 
   selectPokemon(cardId) {
@@ -153,39 +155,60 @@ export class PokemonController {
     const message = `¿Quieres añadir los siguientes Pokémon a la Lista de Deseos?\n${this.newDesireList.join(", ")}`;
     if (window.confirm(message)) {
       console.log("Guardando lista de deseos...");
-      this.saveWishlist();
+      // Aquí puedes implementar la lógica para guardar la lista de deseos
     } else {
       this.newDesireList = [];
       console.log("Lista de deseos deseleccionada.");
     }
   }
 
-  async saveWishlist() {
-    try {
-      const wishlist = this.newDesireList.map(id => ({ pokemonId: id }));
-      await this.db.create({ wishlist });
-      alert("Lista de deseos guardada con éxito.");
-    } catch (error) {
-      console.error("Error al guardar la lista de deseos:", error);
-      alert("Error al guardar la lista de deseos.");
+  handleLogin(event) {
+    event.preventDefault();
+    const email = this.login.form?.querySelector("#loginUsername")?.value;
+    const password = this.login.form?.querySelector("#loginPassword")?.value;
+    if (email && password) {
+      this.login.manageacount(email, password);
+    } else {
+      console.error("Campos de login no encontrados");
     }
+  }
+
+  handleSignup(event) {
+    event.preventDefault();
+    const fields = ["#registerUsername", "#name", "#fullName", "#email", "#age", "#city", "#registerPassword", "#confirmPassword"];
+    const values = fields.map(id => document.querySelector(id)?.value);
+    const [nickname, name, surname, email, age, city, password, confirmPassword] = values;
+
+    if (values.some(v => v === undefined)) {
+      console.error("Algunos campos de registro no fueron encontrados");
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      alert("Las contraseñas no coinciden");
+      return;
+    }
+
+    this.signup.registerUser(nickname, name, surname, email, age, city, password);
   }
 
   async bbddAction(action) {
     try {
       switch (action) {
         case "readAllPokemon":
-          console.log(await this.db.readAll());
+          console.log(await this.model.readAllPokemons());
           break;
         case "addPokemon":
-          await this.createPokemon({ tipo: "Iron", nombre: "Fixy" });
+          // Implementa la lógica para añadir un Pokémon
           break;
         case "updatePokemon":
-          await this.updatePokemon("dJEvAx4dTIUY9IOeoy7E", { tipo: "Water", nombre: "Darum" });
+          // Implementa la lógica para actualizar un Pokémon
           break;
         case "deletePokemon":
-          await this.deletePokemon("PezyN0gwr0vzXhBApCxU");
+          // Implementa la lógica para eliminar un Pokémon
           break;
+        default:
+          console.log("Acción no reconocida");
       }
     } catch (error) {
       console.error(`Error en acción de BBDD (${action}):`, error);
