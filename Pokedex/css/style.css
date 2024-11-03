@@ -251,6 +251,6 @@ body {
 }
 
 .pokemon-card img {
-  width: 100px; /* Ajusta el tamaño según sea necesario */
+  width: 100px; 
   height: auto;
 }

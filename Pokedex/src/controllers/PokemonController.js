@@ -279,7 +279,6 @@ export class PokemonController {
     const message = `¿Quieres comprar los siguientes Pokémon?\n${selectedPokemons.join(", ")}`;
     
     if (window.confirm(message)) {
-      // Asegúrate de que this.cart sea un array antes de usar spread
       if (!Array.isArray(this.cart)) {
         this.cart = [];
       }
