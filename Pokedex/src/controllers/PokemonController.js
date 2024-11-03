@@ -11,6 +11,10 @@ export class PokemonController {
     this.signup = new Signup();
 
     this.newDesireList = JSON.parse(localStorage.getItem('wishlist') || '[]');
+    this.cart = JSON.parse(localStorage.getItem('cart') || '[]');
+    if (!Array.isArray(this.cart)) {
+      this.cart = [];
+    }
     this.initEvents();
     
     // Configura el callback para selección de Pokémon
@@ -25,6 +29,18 @@ export class PokemonController {
     if (addToWishlistButton) {
       addToWishlistButton.addEventListener("click", this.handleAddToWishlist.bind(this));
     }
+
+    const buyButton = document.querySelector("#btnComprar");
+    if (buyButton) {
+      buyButton.addEventListener("click", this.handleBuy.bind(this));
+    }
+
+    const viewPurchaseButton = document.querySelector("#btnVerCompra");
+    if (viewPurchaseButton) {
+      viewPurchaseButton.addEventListener("click", this.viewPurchase.bind(this));
+    }
+
+
   }
 
   initEvents() {
@@ -248,4 +264,46 @@ export class PokemonController {
       console.error("Algunos campos de registro no fueron encontrados");
     }
   }
+
+  handleBuy() {
+    if (this.newDesireList.length === 0) {
+      alert("No has seleccionado ningún Pokémon para comprar.");
+      return;
+    }
+
+    const selectedPokemons = this.newDesireList.map(id => {
+      const pokemon = this.model.getPokemonById(parseInt(id));
+      return pokemon ? pokemon.name : id;
+    });
+
+    const message = `¿Quieres comprar los siguientes Pokémon?\n${selectedPokemons.join(", ")}`;
+    
+    if (window.confirm(message)) {
+      // Asegúrate de que this.cart sea un array antes de usar spread
+      if (!Array.isArray(this.cart)) {
+        this.cart = [];
+      }
+      
+      // Guardamos los Pokémon comprados en el carrito
+      this.cart = Array.from(new Set([...this.cart, ...this.newDesireList]));
+      localStorage.setItem('cart', JSON.stringify(this.cart));
+      alert("Pokémon comprados. Puedes ver la compra haciendo clic en 'Ver compra'.");
+      
+      // Limpiamos la selección visual y la lista temporal
+      document.querySelectorAll('.card.selected').forEach(card => {
+        card.classList.remove('selected');
+        card.style.borderColor = '';
+      });
+      this.newDesireList = [];
+    } else {
+      console.log("Operación cancelada por el usuario.");
+    }
+  }
+
+  viewPurchase() {
+    window.location.href = 'purchase.html'; // Redirige a la página de compra
+  }
+
+
+
 }

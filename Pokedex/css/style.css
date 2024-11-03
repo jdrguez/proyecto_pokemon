@@ -231,3 +231,26 @@ body {
 #backToPokedex:hover {
   background-color: #45a049;
 }
+
+
+
+.purchase-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.purchase-list li {
+  margin-bottom: 20px;
+}
+
+.pokemon-card {
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  padding: 10px;
+  text-align: center;
+}
+
+.pokemon-card img {
+  width: 100px; /* Ajusta el tamaño según sea necesario */
+  height: auto;
+}
