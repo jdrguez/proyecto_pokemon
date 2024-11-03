@@ -49,27 +49,22 @@ export class PokemonModel {
 
   // Método para cargar todos los Pokémon
   async loadPokemons(limit = 151) {
+    // Si ya hemos cargado los Pokémon, no los volvemos a cargar
+    if (this.pokemons.length > 0) return this.pokemons;
+
     try {
-      // Crear un array de promesas para cargar todos los Pokémon
-      const promises = [];
-      for (let i = 1; i <= limit; i++) {
-        promises.push(this.fetchPokemon(i));
-      }
-
-      // Esperar a que todas las promesas se resuelvan
-      const results = await Promise.all(promises);
-
-      // Filtrar los resultados nulos y guardar los Pokémon
-      this.pokemons = results.filter(pokemon => pokemon !== null);
-
-      // Devolver la lista de Pokémon
-      return this.pokemons;
-
+        const promises = [];
+        for (let i = 1; i <= limit; i++) {
+            promises.push(this.fetchPokemon(i));
+        }
+        const results = await Promise.all(promises);
+        this.pokemons = results.filter(pokemon => pokemon !== null);
+        return this.pokemons;
     } catch (error) {
-      console.error("Error loading Pokémon:", error);
-      throw error;
+        console.error("Error loading Pokémon:", error);
+        throw error;
     }
-  }
+}
 
   // Método para obtener todos los Pokémon cargados
   getAllPokemons() {

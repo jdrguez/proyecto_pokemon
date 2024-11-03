@@ -1,9 +1,10 @@
 export class PokemonView {
   constructor() {
-    this.pokedex = document.getElementById("pokedex");
+    this.pokedex = document.getElementById("pokedex") || document.getElementById("wishlist-container");
     this.loadingMessage = document.querySelector(".cargandoDatos");
     this.consoleElements = document.querySelectorAll(".input, .btnMenu");
     this.button = document.querySelector("#button");
+    this.onPokemonSelect = null; // Callback para seleccionar Pokémon
 
     // Modal para mostrar detalles
     this.modal = document.createElement("div");
@@ -23,7 +24,11 @@ export class PokemonView {
     this.noResultsMessage = document.createElement("p");
     this.noResultsMessage.classList.add("no-results-message");
     this.noResultsMessage.style.display = "none"; // Inicialmente oculto
-    this.pokedex.appendChild(this.noResultsMessage);
+  }
+
+  // Método para establecer el callback
+  setOnPokemonSelectCallback(callback) {
+    this.onPokemonSelect = callback;
   }
 
   showLoading() {
@@ -55,12 +60,12 @@ export class PokemonView {
     this.noResultsMessage.style.display = "none";
   }
 
-  displayPokemons(pokemons) {
+  displayPokemons(pokemons, isWishlist = false) {
     if (!this.pokedex) return;
 
     this.pokedex.innerHTML = "";
     if (pokemons.length === 0) {
-      this.showNoResultsMessage("No se encontraron Pokémon para los filtros aplicados.");
+      this.showNoResultsMessage(isWishlist ? "No hay Pokémon en tu lista de deseos." : "No se encontraron Pokémon para los filtros aplicados.");
     } else {
       this.hideNoResultsMessage();
       pokemons.forEach(pokemon => {
@@ -80,10 +85,11 @@ export class PokemonView {
           <div class="types">${types}</div>
         `;
 
-        // Añadir evento click a la tarjeta
-        pokemonCard.addEventListener("click", () => {
-          this.handlePokemonClick(pokemon, pokemonCard);
-        });
+        if (!isWishlist) {
+          pokemonCard.addEventListener("click", () => {
+            this.handlePokemonClick(pokemon, pokemonCard);
+          });
+        }
 
         this.pokedex.appendChild(pokemonCard);
       });
@@ -95,6 +101,11 @@ export class PokemonView {
     if (!pokemonCard.classList.contains("selected")) {
       pokemonCard.classList.add("selected");
       pokemonCard.style.borderColor = "#FFD700";
+      
+      // Llamar al callback si existe
+      if (this.onPokemonSelect) {
+        this.onPokemonSelect(`pokemon-${pokemon.id}`);
+      }
     } else {
       pokemonCard.classList.remove("selected");
       pokemonCard.style.borderColor = "";
@@ -110,15 +121,5 @@ export class PokemonView {
       <img src="${pokemon.pkm_front}" alt="${pokemon.name} front image">
     `;
     this.modal.appendChild(this.closeModalButton);
-
-    // Llamada para añadir el Pokémon a la lista de deseos
-    this.addToWishlist(pokemon);
-  }
-
-  addToWishlist(pokemon) {
-    const isConfirmed = window.confirm(`¿Quieres añadir a ${pokemon.name} a la lista de deseos?`);
-    if (isConfirmed) {
-      console.log(`${pokemon.name} añadido a la lista de deseos.`);
-    }
   }
 }
